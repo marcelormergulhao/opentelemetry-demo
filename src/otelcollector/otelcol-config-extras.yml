@@ -16,3 +16,35 @@
 #    pipelines:
 #      traces:
 #        exporters: [spanmetrics, otlphttp/example]
+exporters:
+  datadog:
+    api:
+      key: ${DD_API_KEY}   # Set/Replace with your Datadog API key
+    host_metadata:
+      tags:
+        - otel:true
+  otlp/newrelic:
+    endpoint: ${NEWRELIC_OTLP_ENDPOINT}
+    headers:
+      api-key: ${NEWRELIC_LICENSE_KEY}
+
+processors:
+  resource:
+    attributes:
+      - key: deployment.environment   # Set env tag for Datadog
+        value: "otel"
+        action: upsert
+
+service:
+  pipelines:
+    traces:
+      processors: [batch, resource]
+      exporters: [otlp, debug, spanmetrics, datadog, otlp/newrelic]
+    metrics:
+      processors: [filter/ottl, transform, batch, resource]
+      exporters: [otlphttp/prometheus, debug, datadog, otlp/newrelic]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/logs, debug, datadog, otlp/newrelic]
+  
