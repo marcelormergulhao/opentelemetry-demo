@@ -27,6 +27,10 @@ exporters:
     endpoint: ${NEWRELIC_OTLP_ENDPOINT}
     headers:
       api-key: ${NEWRELIC_LICENSE_KEY}
+  otlphttp/dynatrace: 
+    endpoint: "${DT_OTLP_ENDPOINT}" 
+    headers: 
+      Authorization: "Api-Token ${DT_API_TOKEN}"  
 
 processors:
   resource:
@@ -34,17 +38,18 @@ processors:
       - key: deployment.environment   # Set env tag for Datadog
         value: "otel"
         action: upsert
+  cumulativetodelta:  
 
 service:
   pipelines:
     traces:
       processors: [batch, resource]
-      exporters: [otlp, debug, spanmetrics, datadog, otlp/newrelic]
+      exporters: [otlp, debug, spanmetrics, datadog, otlp/newrelic, otlphttp/dynatrace]
     metrics:
-      processors: [filter/ottl, transform, batch, resource]
-      exporters: [otlphttp/prometheus, debug, datadog, otlp/newrelic]
+      processors: [filter/ottl, transform, batch, cumulativetodelta, resource]
+      exporters: [otlphttp/prometheus, debug, datadog, otlp/newrelic, otlphttp/dynatrace]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/logs, debug, datadog, otlp/newrelic]
+      exporters: [otlp/logs, debug, datadog, otlp/newrelic, otlphttp/dynatrace]
   

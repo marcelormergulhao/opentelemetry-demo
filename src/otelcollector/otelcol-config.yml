@@ -39,6 +39,8 @@ processors:
         # FIXME: remove when a Metrics View is implemented in the checkout and productcatalog components
         # or when this issue is resolved: https://github.com/open-telemetry/opentelemetry-go-contrib/issues/3071
         - 'name == "rpc.server.duration"'
+        - 'name == "process.runtime.jvm.system.cpu.load_1m"'
+        - 'type == METRIC_DATA_TYPE_HISTOGRAM'
   transform:
     metric_statements:
       - context: metric
